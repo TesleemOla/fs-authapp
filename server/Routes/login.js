@@ -4,13 +4,15 @@ const bcrypt = require('bcrypt');
 const User = require("../db/userModel")
 const jwt = require('jsonwebtoken')
 
+
+router.get('/', (req, res)=>{
+    res.send("login only")
+})
 router.post('/', (req, res) => {
     User.findOne({
         email: req.body.email.toLowerCase()
     }, ((err, user) => {
         if (user) {
-            console.log(user);
-
             bcrypt.compare(req.body.password, user.password)
                 .then(passwordcheck => {
                     if (!passwordcheck) {
@@ -18,7 +20,7 @@ router.post('/', (req, res) => {
                             message: "Password does not match",
                             error: err,
                         })
-                    }
+                    }else{
                     const token = jwt.sign({
                         userId: user._id,
                         userEmail: user.email
@@ -31,8 +33,10 @@ router.post('/', (req, res) => {
                         email: user.email,
                         token,
                     })
-                })
-        } else {
+                }
+            })
+        }
+         else {
             res.status(404).send({
                 message: "email not found",
                 error: err,
